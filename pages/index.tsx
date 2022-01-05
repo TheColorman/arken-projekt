@@ -1,16 +1,19 @@
-import type { GetStaticProps, NextPage } from 'next'
+import type { GetStaticProps } from 'next'
 import Header from '../components/header'
 import Head from 'next/head'
 import Image from 'next/image'
-import { readdirSync } from 'fs'
+import { PrismaClient } from '@prisma/client'
+import type { Artwork } from '@prisma/client'
+import styles from '../styles/Home.module.css'
 
 interface Props {
-  images: string[]
+  images: Artwork[]
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => { // must be async
-  const images = readdirSync('public/images')
-  
+  const prisma = new PrismaClient()
+  const images = await prisma.artwork.findMany()
+
   return {
     props: {
       images,
@@ -19,7 +22,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => { // must be as
 }
 
 
-const Home: NextPage = ({ images }: { images: string[] }) => {
+const Home = ({ images }: { images: Artwork[] }) => {
   return (
     <>
       <Header />
@@ -32,16 +35,22 @@ const Home: NextPage = ({ images }: { images: string[] }) => {
         <div
           className='flex flex-wrap justify-center w-full'
         >
-        {images.map((image, index) => (
-          <div className="m-2" key={index}>
-              <Image
-                src={`/images/${image}`}
-                alt={image}
-                width={200}
-                height={200}
-              />
-          </div>
-        ))}
+          {images.map((image, index) => (
+            <a href="https://arken.dk" key={index}>
+              <div className={`m-2 ${styles.card}`}>
+                <div className="relative w-full h-full">
+                  <Image
+                    src={`/images/${image.imagePath}`}
+                    alt={image.title}
+                    width={300}
+                    height={300}
+                  />
+                </div>
+                <h1 className={styles.cardTitle}>{image.title}</h1>
+                <p className={styles.cardSubtitle}>{image.artist}</p>
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </>

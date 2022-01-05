@@ -114,3 +114,11 @@
     flex-direction: column;
   }
 }
+
+.cardTitle {
+  @apply text-lg;
+}
+
+p.cardSubtitle {
+  @apply text-sm text-gray-500;
+}
