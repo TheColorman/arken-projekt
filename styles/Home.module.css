@@ -116,9 +116,9 @@
 }
 
 .cardTitle {
-  @apply text-lg;
+  @apply text-lg hover:underline;
 }
 
 p.cardSubtitle {
-  @apply text-sm text-gray-500;
+  @apply text-sm text-gray-500 hover:underline;
 }

@@ -1,40 +1,41 @@
-import { Artwork } from '@prisma/client'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { PrismaClient } from '@prisma/client'
 
-type Data = {
-    results: Artwork[]
-}
-
-type Error = {
-    error: string
-}
+const prisma = new PrismaClient()
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<Data | Error>
+    res: NextApiResponse
 ) {
-    res.status(500).json({ error: 'This endpoint is not yet implemented' })
-    /* {
-        const query = req.query.q
+    if (!req.query.q) {
+        const data = await prisma.artwork.findMany()
+        return res.status(200).json(data)
+    }
+    const query = req.query.q as string
 
-        if (!query) {
-            res.status(400).json({
-                error: 'Missing query parameter',
-            })
-            return
-        }
-
-        const prisma = new PrismaClient()
-
-        const result = await prisma.artwork.findMany({
-            where: {
-                title: {
-                    search: query
+    const data = await prisma.artwork.findMany({
+        where: {
+            OR: [
+                {
+                    artist: {
+                        contains: query
+                    }
+                }, {
+                    collection: {
+                        contains: query
+                    }
+                }, {
+                    title: {
+                        contains: query
+                    }
+                }, {
+                    tag: {
+                        contains: query
+                    }
                 }
-            }
-        })
 
-        res.status(200).json({ results: result })
-    } */
+            ]
+        }
+    })
+    res.status(200).json(data)
 }
